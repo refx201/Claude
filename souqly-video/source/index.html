@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root{
+    --navy:#081C27;      /* لون النص بالشعار */
+    --teal:#01687B;      /* لون الشنطة بالشعار */
+    --teal-lt:#2FA7BD;
+    --white:#FFFFFF;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1080px;height:1080px;overflow:hidden;background:var(--navy)}
+  body{font-family:'Cairo',sans-serif;color:#fff;-webkit-font-smoothing:antialiased}
+  #stage{position:absolute;inset:0;overflow:hidden;background:var(--navy)}
+  .abs{position:absolute}
+  /* خلفية: توهج خفيف */
+  #glow{position:absolute;inset:-200px;background:
+      radial-gradient(600px 600px at 50% 45%, rgba(1,104,123,.35), transparent 70%);
+  }
+  #grain{position:absolute;inset:0;opacity:.06;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");}
+
+  /* ===== العناوين ===== */
+  #hl{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center}
+  .line{position:relative;height:280px;overflow:hidden;margin:-44px 0}
+  .w{position:absolute;left:0;right:0;top:0;font-weight:900;font-size:205px;line-height:280px;letter-spacing:0;white-space:nowrap;will-change:transform}
+
+  #slam{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center}
+  .sl{font-weight:900;font-size:168px;line-height:176px;white-space:nowrap;margin:-6px 0;position:relative}
+  .hi{position:relative;display:inline-block;padding:0 34px}
+  .hi .box{position:absolute;inset:18px 0 10px 0;background:var(--teal);border-radius:26px;transform-origin:right center;z-index:-1}
+
+  /* ===== موك أب المتجر ===== */
+  #browser{position:absolute;left:170px;top:120px;width:740px;height:540px;border-radius:26px;background:#fff;overflow:hidden;
+    box-shadow:0 40px 90px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.08)}
+  #browser .bar{height:52px;background:#F1F4F6;display:flex;align-items:center;padding:0 20px;gap:10px;direction:ltr}
+  .dot{width:13px;height:13px;border-radius:50%}
+  .url{flex:1;margin-left:14px;height:30px;border-radius:15px;background:#fff;color:#6b7a84;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;direction:rtl}
+  .shop-h{height:70px;background:var(--teal);display:flex;align-items:center;justify-content:space-between;padding:0 28px;color:#fff;font-weight:800;font-size:26px}
+  .shop-h .nav{display:flex;gap:18px;font-size:17px;font-weight:600;opacity:.9}
+  .hero{margin:18px 24px 0;height:170px;border-radius:18px;background:linear-gradient(120deg,#E3F1F4,#CFE7EC);position:relative;overflow:hidden;color:var(--navy);padding:26px 30px}
+  .hero h3{font-size:36px;font-weight:900;line-height:1.2}
+  .hero p{font-size:17px;font-weight:600;opacity:.7;margin-top:2px}
+  .hero .btn{display:inline-block;margin-top:14px;background:var(--navy);color:#fff;font-size:16px;font-weight:800;padding:6px 20px;border-radius:30px}
+  .hero .art{position:absolute;left:36px;bottom:-10px;width:170px;height:170px}
+  .grid{display:flex;gap:16px;margin:18px 24px 0}
+  .pc{flex:1;height:180px;border-radius:16px;background:#F5F7F8;position:relative;overflow:hidden}
+  .pc .img{position:absolute;left:0;right:0;top:0;height:118px;display:flex;align-items:flex-end;justify-content:center}
+  .pc .t{position:absolute;right:14px;top:126px;height:10px;width:60%;border-radius:5px;background:#D5DDE1}
+  .pc .pr{position:absolute;right:14px;top:146px;font-size:17px;font-weight:800;color:var(--teal)}
+  .pc .add{position:absolute;left:12px;bottom:12px;width:34px;height:34px;border-radius:10px;background:var(--navy);color:#fff;font-size:24px;line-height:32px;text-align:center;font-weight:700}
+
+  /* زجاجات عطر مرسومة */
+  .bottle{position:relative;width:62px;height:88px}
+  .bottle .cap{position:absolute;left:50%;top:0;width:26px;height:22px;margin-left:-13px;border-radius:5px 5px 2px 2px}
+  .bottle .neck{position:absolute;left:50%;top:20px;width:14px;height:8px;margin-left:-7px;background:#c9d3d8}
+  .bottle .body{position:absolute;left:0;right:0;top:27px;bottom:0;border-radius:14px}
+  .bottle .body::after{content:'';position:absolute;right:10px;top:8px;width:9px;height:40%;border-radius:6px;background:rgba(255,255,255,.45)}
+
+  /* ===== بطاقة المنتج ===== */
+  #card{position:absolute;left:310px;top:215px;width:460px;height:650px;border-radius:36px;background:#fff;color:var(--navy);overflow:hidden;
+    box-shadow:0 50px 110px rgba(0,0,0,.6)}
+  #card .img{height:350px;background:linear-gradient(160deg,#E3F1F4,#BFDDE4);position:relative;display:flex;align-items:center;justify-content:center}
+  #card .badge{position:absolute;right:22px;top:22px;background:var(--navy);color:#fff;font-size:18px;font-weight:800;padding:4px 16px;border-radius:20px}
+  #card .info{padding:22px 30px 0}
+  #card .name{font-size:34px;font-weight:900;line-height:1.3}
+  #card .stars{color:#F2B705;font-size:24px;letter-spacing:3px;direction:ltr;text-align:right}
+  #card .price{font-size:32px;font-weight:900;color:var(--teal);margin-top:2px}
+  #buy{position:absolute;left:30px;right:30px;bottom:28px;height:84px;border-radius:22px;background:var(--teal);color:#fff;font-size:32px;font-weight:900;
+    display:flex;align-items:center;justify-content:center;overflow:hidden}
+  #buy .lbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:12px}
+  #buy .shine{position:absolute;top:0;bottom:0;width:120px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-20deg)}
+
+  /* ===== الإشعارات ===== */
+  #notifs{position:absolute;inset:0}
+  .nt{position:absolute;left:150px;width:780px;height:124px;border-radius:30px;
+    background:rgba(236,241,243,.86);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+    color:var(--navy);display:flex;align-items:center;padding:0 24px;gap:20px;box-shadow:0 18px 40px rgba(0,0,0,.35)}
+  .nt .ic{width:78px;height:78px;border-radius:20px;background:#fff;display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+  .nt .ic img{width:62px;height:62px;object-fit:contain}
+  .nt .tx{flex:1;min-width:0}
+  .nt .row{display:flex;justify-content:space-between;align-items:baseline}
+  .nt .ttl{font-size:27px;font-weight:900;line-height:1.3}
+  .nt .now{font-size:19px;font-weight:600;color:#6b7a84}
+  .nt .msg{font-size:23px;font-weight:600;line-height:1.35;color:#2c3b44;white-space:nowrap}
+
+  /* ===== الخاتمة ===== */
+  #wipeT,#wipeW{position:absolute;inset:0}
+  #wipeT{background:var(--teal)}
+  #wipeW{background:#fff}
+  #end{position:absolute;inset:0;color:var(--navy)}
+  #logo{position:absolute;left:130px;top:250px;width:820px}
+  #logo img{position:absolute;left:0;top:0;width:820px}
+  #tag{position:absolute;left:0;right:0;top:640px;text-align:center;font-size:40px;font-weight:800;color:var(--navy)}
+  #tag b{color:var(--teal);font-weight:900}
+  #cta{position:absolute;left:50%;top:735px;height:112px;padding:0 70px;margin-left:-0px;border-radius:60px;background:var(--teal);color:#fff;
+    font-size:46px;font-weight:900;display:flex;align-items:center;gap:18px;white-space:nowrap;overflow:hidden;box-shadow:0 22px 50px rgba(1,104,123,.35)}
+  #cta .shine{position:absolute;top:0;bottom:0;width:140px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);transform:skewX(-20deg)}
+  #sub{position:absolute;left:0;right:0;top:880px;text-align:center;font-size:26px;font-weight:600;color:#51646e}
+
+  /* ===== المؤشر ===== */
+  #cursor{position:absolute;left:0;top:0;width:58px;height:58px;z-index:50;filter:drop-shadow(0 6px 10px rgba(0,0,0,.45))}
+  #ripple{position:absolute;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;border:5px solid rgba(255,255,255,.9);z-index:49}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="glow"></div>
+
+  <!-- العناوين المتدحرجة -->
+  <div id="hl">
+    <div class="line" id="L1">
+      <div class="w" data-k="s1">سهل</div>
+      <div class="w" data-k="s3">والطلبات</div>
+    </div>
+    <div class="line" id="L2">
+      <div class="w" data-k="s1">تبني</div>
+      <div class="w" data-k="s2">يشتري</div>
+      <div class="w" data-k="s3">ما</div>
+    </div>
+    <div class="line" id="L3">
+      <div class="w" data-k="s1">متجرك</div>
+      <div class="w" data-k="s2">زبونك</div>
+      <div class="w" data-k="s3">بتوقف</div>
+    </div>
+  </div>
+
+  <!-- موك أب المتجر -->
+  <div id="browser">
+    <div class="bar">
+      <div class="dot" style="background:#FF5F57"></div><div class="dot" style="background:#FEBC2E"></div><div class="dot" style="background:#28C840"></div>
+      <div class="url">🔒 متجر ليان</div>
+    </div>
+    <div class="shop-h" id="b-head"><span>ليان للعطور</span><span class="nav"><span>الرئيسية</span><span>المنتجات</span><span>🛒</span></span></div>
+    <div class="hero" id="b-hero">
+      <h3>تشكيلة جديدة</h3>
+      <p>عطور فاخرة بأسعار مميزة</p>
+      <span class="btn">تسوّق الآن</span>
+      <div class="art" id="b-art"></div>
+    </div>
+    <div class="grid" id="b-grid"></div>
+  </div>
+
+  <!-- بطاقة المنتج -->
+  <div id="card">
+    <div class="img"><span class="badge">شحن مجاني</span><div id="bigBottle"></div></div>
+    <div class="info">
+      <div class="name">عطر ليان الفاخر</div>
+      <div class="stars">★★★★★</div>
+      <div class="price"><bdi dir="ltr">$35</bdi></div>
+    </div>
+    <div id="buy">
+      <div class="lbl" id="buyA">اشترِ الآن</div>
+      <div class="lbl" id="buyB">✓ تمّ الطلب</div>
+      <div class="shine" id="buyShine"></div>
+    </div>
+  </div>
+
+  <!-- الإشعارات -->
+  <div id="notifs"></div>
+
+  <!-- الجمل الضاربة -->
+  <div id="slam">
+    <div class="sl" id="S1">ابدأ</div>
+    <div class="sl" id="S2">البيع</div>
+    <div class="sl" id="S3">خلال</div>
+    <div class="sl" id="S4"><span class="hi"><span class="box" id="hibox"></span>دقائق</span></div>
+  </div>
+
+  <!-- الخاتمة -->
+  <div id="wipeT"></div>
+  <div id="wipeW"></div>
+  <div id="end">
+    <div id="logo"><img id="lgWord" src="assets/word.png"><img id="lgBag" src="assets/bag.png"></div>
+    <div id="tag">متجرك الإلكتروني <b>جاهز بدقائق</b></div>
+    <div id="cta"><span id="ctaTxt">ابدأ مجاناً</span><span style="font-size:40px">←</span><div class="shine" id="ctaShine"></div></div>
+    <div id="sub">بدون خبرة تقنية · بدون رسوم تأسيس</div>
+  </div>
+
+  <div id="ripple"></div>
+  <svg id="cursor" viewBox="0 0 32 32"><path d="M6 3 L6 26 L12 20.5 L16 29 L20 27.2 L16.2 19 L24 19 Z" fill="#fff" stroke="#081C27" stroke-width="1.8" stroke-linejoin="round"/></svg>
+  <div id="grain"></div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const P=(t,a,b)=>clamp((t-a)/(b-a));
+const lerp=(a,b,k)=>a+(b-a)*k;
+const eOut=k=>1-Math.pow(1-k,3);
+const eIn=k=>k*k*k;
+const eIO=k=>k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
+const eQuint=k=>1-Math.pow(1-k,5);
+const back=(k,s=1.7)=>1+(s+1)*Math.pow(k-1,3)+s*Math.pow(k-1,2);
+const spring=k=>k<=0?0:1-Math.exp(-7*k)*Math.cos(11*k);
+const bounce=k=>{const n=7.5625,d=2.75;if(k<1/d)return n*k*k;if(k<2/d)return n*(k-=1.5/d)*k+.75;if(k<2.5/d)return n*(k-=2.25/d)*k+.9375;return n*(k-=2.625/d)*k+.984375};
+
+function bottle(color,cap,scale=1){
+  return `<div class="bottle" style="transform:scale(${scale});transform-origin:bottom center">
+    <div class="cap" style="background:${cap}"></div><div class="neck"></div>
+    <div class="body" style="background:${color}"></div></div>`;
+}
+// بناء محتوى المتجر
+$('#b-art').innerHTML=`<div style="position:absolute;left:10px;bottom:14px">${bottle('#01687B','#081C27',1.25)}</div>
+  <div style="position:absolute;left:92px;bottom:14px">${bottle('#E7B9A6','#B08968',1.0)}</div>`;
+const prods=[['#081C27','#C9A227','32$'],['#9CC9D3','#01687B','28$'],['#E7B9A6','#8A5A44','41$']];
+$('#b-grid').innerHTML=prods.map((p,i)=>`<div class="pc" id="pc${i}"><div class="img">${bottle(p[0],p[1],1.05)}</div><div class="t"></div><div class="pr">${p[2]}</div><div class="add">+</div></div>`).join('');
+$('#bigBottle').innerHTML=`<div style="transform:translateY(75px)">${bottle('#01687B','#081C27',2.3)}</div>`;
+
+// الإشعارات
+const NT_TIMES=[6.55,6.95,7.28,7.55,7.76,7.93,8.07,8.19,8.29,8.38,8.46,8.53];
+const MSGS=[
+ 'طلب جديد: 3 منتجات بقيمة <bdi dir=\"ltr\">$75</bdi>','طلب جديد: منتج واحد بقيمة <bdi dir=\"ltr\">$35</bdi>','طلب جديد: منتجين بقيمة <bdi dir=\"ltr\">$60</bdi>',
+ 'طلب جديد: 4 منتجات بقيمة <bdi dir=\"ltr\">$120</bdi>','طلب جديد: منتج واحد بقيمة <bdi dir=\"ltr\">$28</bdi>','طلب جديد: 3 منتجات بقيمة <bdi dir=\"ltr\">$96</bdi>',
+ 'طلب جديد: منتجين بقيمة <bdi dir=\"ltr\">$70</bdi>','طلب جديد: 5 منتجات بقيمة <bdi dir=\"ltr\">$150</bdi>','طلب جديد: منتج واحد بقيمة <bdi dir=\"ltr\">$41</bdi>',
+ 'طلب جديد: 3 منتجات بقيمة <bdi dir=\"ltr\">$88</bdi>','طلب جديد: منتجين بقيمة <bdi dir=\"ltr\">$64</bdi>','طلب جديد: 4 منتجات بقيمة <bdi dir=\"ltr\">$132</bdi>'];
+$('#notifs').innerHTML=NT_TIMES.map((_,i)=>`<div class="nt" id="nt${i}"><div class="ic"><img src="assets/bag_icon.png"></div>
+  <div class="tx"><div class="row"><span class="ttl">سوقلي</span><span class="now">الآن</span></div><div class="msg">${MSGS[i]}</div></div></div>`).join('');
+
+const words=[...document.querySelectorAll('.w')];
+
+// نوافذ الكلمات: [دخول, خروج]
+const WIN={s1:[0.05,2.9],s2:[3.1,5.9],s3:[6.1,9.0]};
+// سطر "سهل" يبقى بين المشهدين ١ و٢
+function wordY(el,t,lineIdx){
+  const k=el.dataset.k;
+  let a,b;
+  if(lineIdx===0 && k==='s1'){a=WIN.s1[0];b=WIN.s2[1];}
+  else [a,b]=WIN[k];
+  const d=lineIdx*0.12;               // تتابع الأسطر
+  const pin=eQuint(P(t,a+d,a+d+0.42));
+  const pout=eIn(P(t,b+d*0.5,b+d*0.5+0.22));
+  if(t<a+d) return 110;
+  return lerp(110,0,pin)+lerp(0,-110,pout);
+}
+
+function cursorAt(x,y,press){
+  const c=$('#cursor');
+  c.style.transform=`translate(${x}px,${y}px) scale(${1-0.18*press})`;
+}
+
+window.render=function(t){
+  // ---------- العناوين ----------
+  const lines=[...document.querySelectorAll('.line')];
+  lines.forEach((ln,li)=>{
+    [...ln.children].forEach(w=>{
+      const y=wordY(w,t,li);
+      w.style.transform=`translateY(${y}%)`;
+      w.style.visibility=(y>=110||y<=-110)?'hidden':'visible';
+      w.style.opacity=1-Math.pow(clamp(Math.abs(y)/80),1.4);
+    });
+  });
+  // اهتزاز بسيط للعنوان مع ظهور الموك أب
+  const hlS=1+0.04*P(t,0,3)-0.0;
+  $('#hl').style.transform=`translateY(-50%) scale(${hlS})`;
+  $('#hl').style.opacity = t>9.2?0:1;
+
+  // ---------- الموك أب ----------
+  const br=$('#browser');
+  const bIn=P(t,1.05,1.75), bOut=P(t,2.62,2.98);
+  if(t<1.05||t>3.0){br.style.display='none'}else{
+    br.style.display='block';
+    const y=lerp(820,0,back(bIn,1.2))+lerp(0,-1000,eIn(bOut));
+    const r=lerp(6,0,eOut(bIn))+lerp(0,-8,eIn(bOut));
+    br.style.transform=`translateY(${y}px) rotate(${r}deg) scale(${lerp(.92,1,eOut(bIn))})`;
+    // بناء الأجزاء بالتتابع
+    const pop=(el,a)=>{const k=P(t,a,a+0.32);el.style.opacity=k>0?1:0;el.style.transform=`scale(${k>0?lerp(.6,1,back(k,2)):.6})`;};
+    pop($('#b-head'),1.45); pop($('#b-hero'),1.62);
+    [0,1,2].forEach(i=>pop($('#pc'+i),1.95+i*0.09));
+  }
+
+  // ---------- بطاقة المنتج ----------
+  const cd=$('#card');
+  if(t<3.45||t>6.0){cd.style.display='none'}else{
+    cd.style.display='block';
+    const ki=P(t,3.45,4.15), ko=P(t,5.55,5.95);
+    const s=lerp(.35,1,spring(ki))*lerp(1,.2,eIn(ko));
+    const y=lerp(0,-40,eIn(ko));
+    cd.style.transform=`translateY(${y}px) scale(${s}) rotate(${lerp(-8,0,eOut(ki))+lerp(0,10,eIn(ko))}deg)`;
+    cd.style.opacity=1-eIn(ko);
+    const press=Math.max(0,Math.sin(Math.PI*P(t,4.72,4.95)));
+    $('#buy').style.transform=`scale(${1-0.06*press})`;
+    const sw=P(t,4.85,5.1);
+    $('#buyA').style.transform=`translateY(${lerp(0,-100,eOut(sw))}%)`;
+    $('#buyB').style.transform=`translateY(${lerp(100,0,eOut(sw))}%)`;
+    $('#buy').style.background= t>4.85?'#081C27':'#01687B';
+    $('#buyShine').style.left=lerp(-160,560,P(t,4.9,5.35))+'px';
+  }
+
+  // ---------- المؤشر ----------
+  const cur=$('#cursor'), rip=$('#ripple');
+  let cv=false, cx=0, cy=0, pr=0, ripT=-1, ripX=0, ripY=0;
+  // مشهد ١: يدخل ويضغط على الموك أب
+  if(t>1.35&&t<2.75){
+    cv=true; const k=eIO(P(t,1.35,1.85));
+    cx=lerp(1100,560,k); cy=lerp(900,560,k);
+    const k2=eIO(P(t,2.05,2.45)); cx=lerp(cx,400,k2); cy=lerp(cy,610,k2);
+    pr=Math.max(0,Math.sin(Math.PI*P(t,1.86,2.0)));
+    ripT=P(t,1.9,2.3); ripX=cx+6; ripY=cy+6;
+  }
+  // مشهد ٢: يضغط اشترِ الآن
+  if(t>3.95&&t<5.6){
+    cv=true; const k=eIO(P(t,3.95,4.7));
+    cx=lerp(1120,560,k); cy=lerp(1120,800,k);
+    const k2=eIO(P(t,5.05,5.55)); cx=lerp(cx,1150,k2); cy=lerp(cy,1000,k2);
+    pr=Math.max(0,Math.sin(Math.PI*P(t,4.72,4.95)));
+    ripT=P(t,4.8,5.25); ripX=cx+6; ripY=cy+6;
+  }
+  // الخاتمة: يضغط ابدأ مجاناً
+  if(t>13.55){
+    cv=true; const k=eIO(P(t,13.55,14.2));
+    cx=lerp(1120,600,k); cy=lerp(1150,800,k);
+    pr=Math.max(0,Math.sin(Math.PI*P(t,14.25,14.45)));
+    ripT=P(t,14.32,14.8); ripX=cx+6; ripY=cy+6;
+  }
+  cur.style.display=cv?'block':'none';
+  cursorAt(cx,cy,pr);
+  if(ripT>0&&ripT<1){rip.style.display='block';rip.style.left=ripX+'px';rip.style.top=ripY+'px';
+    rip.style.transform=`scale(${lerp(.2,1.4,eOut(ripT))})`;rip.style.opacity=1-ripT;
+    rip.style.borderColor= t>11?'rgba(1,104,123,.8)':'rgba(255,255,255,.9)';}
+  else rip.style.display='none';
+
+  // ---------- الإشعارات ----------
+  const GAP=138, TOP=110;
+  const outK=eIn(P(t,8.85,9.35));
+  NT_TIMES.forEach((a,i)=>{
+    const el=$('#nt'+i);
+    if(t<a||t>9.4){el.style.display='none';return}
+    el.style.display='flex';
+    let y=TOP;
+    for(let j=i+1;j<NT_TIMES.length;j++) y+=GAP*eOut(P(t,NT_TIMES[j],NT_TIMES[j]+0.22));
+    const ki=P(t,a,a+0.28);
+    y+=lerp(-70,0,eOut(ki));
+    y+=lerp(0,-1500,outK);
+    el.style.top=y+'px';
+    el.style.opacity=eOut(clamp(ki*1.6));
+    el.style.transform=`scale(${lerp(.86,1,back(ki,1.6))})`;
+  });
+
+  // ---------- الجمل الضاربة ----------
+  const slamT=[9.12,9.36,9.6,9.86];
+  let shake=0;
+  ['#S1','#S2','#S3','#S4'].forEach((id,i)=>{
+    const el=$(id), a=slamT[i], k=P(t,a,a+0.2);
+    if(t<a){el.style.opacity=0;return}
+    el.style.opacity=clamp(k*1.5);
+    el.style.transform=`scale(${lerp(1.9,1,eOut(k))})`;
+    el.style.filter=`blur(${lerp(14,0,eOut(k))}px)`;
+    shake+=Math.max(0,1-P(t,a+0.15,a+0.45))*(t>a+0.15?1:0);
+  });
+  $('#hibox').style.transform=`scaleX(${eQuint(P(t,10.2,10.6))})`;
+  const slOut=P(t,11.15,11.55);
+  const sx=Math.sin(t*90)*9*shake, sy=Math.cos(t*77)*7*shake;
+  $('#slam').style.transform=`translate(${sx}px,calc(-50% + ${sy}px)) scale(${1+0.05*P(t,9.9,11.2)+eIn(slOut)*0.6})`;
+  $('#slam').style.opacity= t<9?0:1-eIn(slOut);
+
+  // ---------- الخاتمة ----------
+  const wT=eIO(P(t,11.35,11.85)), wW=eIO(P(t,11.55,12.05));
+  $('#wipeT').style.clipPath=`circle(${wT*110}% at 50% 50%)`;
+  $('#wipeW').style.clipPath=`circle(${wW*110}% at 50% 50%)`;
+  $('#wipeT').style.display=t<11.35?'none':'block';
+  $('#wipeW').style.display=t<11.55?'none':'block';
+  const end=$('#end'); end.style.display=t<11.9?'none':'block';
+  if(t>=11.9){
+    const push=1+0.035*P(t,12.0,15.5);
+    $('#logo').style.transform=`scale(${push})`;
+    const bk=P(t,11.95,12.6);
+    const bag=$('#lgBag');
+    bag.style.transform=`translateY(${lerp(-620,0,bounce(bk))}px)`;
+    bag.style.opacity=bk>0?1:0;
+    // كشف الكلمة من اليمين لليسار
+    const wk=eIO(P(t,12.45,13.15));
+    $('#lgWord').style.clipPath=`inset(0 0 0 ${lerp(100,0,wk)}%)`;
+    const tg=P(t,13.0,13.45);
+    $('#tag').style.opacity=eOut(tg); $('#tag').style.transform=`translateY(${lerp(30,0,eOut(tg))}px)`;
+    const ck=P(t,13.2,13.75);
+    const press=Math.max(0,Math.sin(Math.PI*P(t,14.25,14.45)));
+    const cta=$('#cta');
+    cta.style.opacity=ck>0?1:0;
+    cta.style.transform=`translateX(-50%) scale(${lerp(.3,1,spring(ck))*(1-0.06*press)})`;
+    $('#ctaShine').style.left=lerp(-200,700,P(t,14.35,14.9))+'px';
+    const sb=P(t,13.5,13.95);
+    $('#sub').style.opacity=eOut(sb); $('#sub').style.transform=`translateY(${lerp(24,0,eOut(sb))}px)`;
+  }
+  // التوهج يتنفس
+  $('#glow').style.transform=`scale(${1+0.08*Math.sin(t*1.3)})`;
+};
+window.render(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="fonts/fonts.css">
+<script src="points.js"></script>
+<style>
+  :root{
+    --bg:#02141A; --teal:#01687B; --navy:#081C27;
+    --cyan:#3EE6F5; --cyan2:#1FC8DB; --ink:#EAFBFF; --mute:#8FB7C0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1080px;height:1920px;overflow:hidden;background:var(--bg)}
+  body{font-family:'Cairo',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+  #stage{position:absolute;inset:0;overflow:hidden;background:
+     radial-gradient(900px 1100px at 50% 45%, #06343F 0%, #03202A 45%, #02141A 80%)}
+  canvas{position:absolute;inset:0}
+  #vign{position:absolute;inset:0;pointer-events:none;background:radial-gradient(1200px 1600px at 50% 50%,transparent 55%,rgba(0,0,0,.55))}
+  #glowA{position:absolute;width:1200px;height:1200px;left:-60px;top:360px;border-radius:50%;
+     background:radial-gradient(circle,rgba(1,104,123,.55),rgba(1,104,123,0) 65%);filter:blur(10px)}
+
+  #scene{position:absolute;inset:0;perspective:2200px;perspective-origin:540px 960px}
+  #world{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-style:preserve-3d}
+  .o{position:absolute;left:0;top:0;transform-style:preserve-3d}
+
+  /* ===== زجاج ===== */
+  .glass{border-radius:34px;
+    background:linear-gradient(145deg,rgba(120,220,235,.16),rgba(20,70,85,.28) 55%,rgba(10,40,50,.38));
+    border:1.5px solid rgba(140,235,250,.28);
+    box-shadow:0 40px 90px rgba(0,0,0,.55), inset 0 1.5px 0 rgba(255,255,255,.22), 0 0 40px rgba(62,230,245,.08);
+    overflow:hidden}
+  .glass::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    background:linear-gradient(120deg,rgba(255,255,255,.10),transparent 40%)}
+  .tag{display:flex;align-items:center;gap:12px;font-size:40px;font-weight:900;color:#fff;line-height:1.2}
+  .tag .ic{width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,var(--cyan2),var(--teal));display:flex;align-items:center;justify-content:center;box-shadow:0 0 22px rgba(62,230,245,.45)}
+  .tag .ic svg{width:30px;height:30px}
+  .cap{font-size:22px;font-weight:600;color:var(--mute)}
+  .pill{display:inline-flex;align-items:center;gap:8px;border-radius:30px;padding:4px 16px;font-size:20px;font-weight:800}
+
+  /* ===== البطاقات الطائرة ===== */
+  #cStore{width:580px;height:300px;padding:30px 34px}
+  #cProd{width:390px;height:520px;padding:28px}
+  #cOrd{width:470px;height:420px;padding:28px 30px}
+  #cCust{width:480px;height:270px;padding:28px 32px}
+  #cNote{width:470px;height:124px;padding:0 24px;display:flex;align-items:center;gap:18px}
+  #cCats{width:560px;height:96px;padding:0 20px;display:flex;align-items:center;justify-content:space-around}
+  .row{display:flex;align-items:center;justify-content:space-between}
+  .ordr{height:74px;border-radius:20px;background:rgba(255,255,255,.06);margin-top:14px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;font-size:24px;font-weight:800}
+  .chip{padding:8px 22px;border-radius:26px;background:rgba(62,230,245,.12);border:1px solid rgba(62,230,245,.35);font-size:24px;font-weight:800;color:#dff9ff}
+  .av{width:62px;height:62px;border-radius:50%;border:3px solid #0a2e38;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:24px;color:#fff;margin-left:-18px}
+
+  /* ===== المتجر (شاشة الجوال) ===== */
+  #store{width:600px;height:1250px;border-radius:64px;overflow:hidden;background:linear-gradient(180deg,#062630,#04161C);
+    box-shadow:0 0 0 1.5px rgba(140,235,250,.25),0 60px 140px rgba(0,0,0,.6)}
+  #sIn{position:absolute;left:0;right:0;top:0}
+  .sec{position:relative;margin:0 26px}
+  .sb{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 44px;font-size:22px;font-weight:800;color:#dff9ff;direction:ltr}
+  .hdr{height:84px;display:flex;align-items:center;justify-content:space-between}
+  .hdr .nm{display:flex;align-items:center;gap:12px;font-size:32px;font-weight:900}
+  .hdr .nm img{width:52px;height:52px;border-radius:14px;background:#fff;padding:4px}
+  .cart{position:relative;width:60px;height:60px;border-radius:18px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center}
+  .cart svg{width:32px;height:32px}
+  .badge{position:absolute;top:-8px;left:-8px;min-width:30px;height:30px;border-radius:15px;background:var(--cyan);color:#022;font-size:18px;font-weight:900;display:flex;align-items:center;justify-content:center}
+  .search{height:66px;border-radius:22px;background:rgba(255,255,255,.07);border:1px solid rgba(140,235,250,.15);display:flex;align-items:center;gap:12px;padding:0 22px;font-size:22px;color:var(--mute);font-weight:600;margin-top:8px}
+  .hero{height:250px;border-radius:30px;margin-top:22px;background:linear-gradient(125deg,#01687B,#0FA9BF 70%,#3EE6F5);overflow:hidden;padding:30px 32px;position:relative}
+  .hero h3{font-size:40px;font-weight:900;line-height:1.25;color:#fff}
+  .hero p{font-size:22px;font-weight:700;color:#e3fbff;opacity:.9}
+  .hero .btn{display:inline-block;margin-top:16px;background:#fff;color:#01687B;font-size:21px;font-weight:900;padding:6px 24px;border-radius:24px}
+  .hero .art{position:absolute;left:40px;bottom:26px}
+  .cats{display:flex;gap:12px;margin-top:24px}
+  .cats .chip{font-size:21px;padding:8px 18px}
+  .cats .chip.on{background:var(--cyan);color:#022;border-color:var(--cyan)}
+  .h2{display:flex;justify-content:space-between;align-items:center;margin-top:26px;font-size:28px;font-weight:900}
+  .h2 span{font-size:20px;color:var(--cyan);font-weight:700}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:14px}
+  .pc{height:300px;border-radius:26px;background:rgba(255,255,255,.06);border:1px solid rgba(140,235,250,.12);position:relative;overflow:hidden}
+  .pc .img{height:180px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 60%,rgba(62,230,245,.18),transparent 70%)}
+  .pc .n{position:absolute;right:18px;top:188px;font-size:22px;font-weight:800}
+  .pc .p{position:absolute;right:18px;top:228px;font-size:24px;font-weight:900;color:var(--cyan)}
+  .pc .add{position:absolute;left:14px;bottom:14px;width:52px;height:52px;border-radius:16px;background:var(--cyan);color:#022;font-size:34px;font-weight:900;display:flex;align-items:center;justify-content:center;line-height:1}
+  .rev{margin-top:22px;height:100px;border-radius:26px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+  .rev .st{color:#FFC94A;font-size:26px;direction:ltr}
+  .nav{position:absolute;left:18px;right:18px;bottom:18px;height:96px;border-radius:32px;background:rgba(6,30,38,.92);border:1px solid rgba(140,235,250,.18);display:flex;justify-content:space-around;align-items:center}
+  .nav svg{width:36px;height:36px}
+  .search svg{width:30px;height:30px;flex:none}
+
+  /* الجوال */
+  #phone{width:640px;height:1290px;border-radius:84px;background:linear-gradient(145deg,#1d3a44,#07161b 40%,#0e2830);
+    box-shadow:0 0 0 2px rgba(140,235,250,.35),0 80px 160px rgba(0,0,0,.7),inset 0 0 0 8px #040d10}
+  #phone .isl{position:absolute;left:50%;top:30px;width:150px;height:40px;margin-left:-75px;border-radius:22px;background:#000}
+  #phone .btn1{position:absolute;right:-6px;top:300px;width:6px;height:120px;border-radius:3px;background:#1d3a44}
+  #phone .btn2{position:absolute;left:-6px;top:260px;width:6px;height:80px;border-radius:3px;background:#1d3a44}
+  #refl{position:absolute;left:20px;top:20px;width:600px;height:1250px;border-radius:64px;pointer-events:none;
+    background:linear-gradient(115deg,rgba(255,255,255,.14) 0%,rgba(255,255,255,.03) 28%,transparent 42%)}
+
+  /* الإشعارات */
+  .nt{width:470px;height:128px;padding:0 24px;display:flex;align-items:center;gap:18px}
+  .nt .bi{width:76px;height:76px;border-radius:22px;background:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+  .nt .bi img{width:60px;height:60px}
+  .nt .t1{font-size:27px;font-weight:900;line-height:1.3}
+  .nt .t2{font-size:22px;font-weight:600;color:#bfe9f0}
+  .nt .tm{position:absolute;left:24px;top:18px;font-size:18px;color:var(--mute);font-weight:600}
+
+  /* الخاتمة */
+  #end{position:absolute;inset:0}
+  #logo{position:absolute;left:130px;top:600px;width:820px;height:316px}
+  #logo img{width:820px;display:block}
+  #logoGlow{position:absolute;left:130px;top:600px;width:820px;height:316px;filter:blur(28px);opacity:.55}
+  #l1{position:absolute;left:0;right:0;top:1010px;text-align:center;font-size:96px;font-weight:900;line-height:1.3;color:#fff;white-space:nowrap}
+  #l1 span{display:inline-block;margin:0 10px}
+  #l2{position:absolute;left:0;right:0;top:1170px;text-align:center;font-size:42px;font-weight:700;color:#A9EEF7}
+  #url{position:absolute;left:50%;top:1300px;height:100px;padding:0 56px;border-radius:50px;display:flex;align-items:center;
+    font-family:'Cairo',sans-serif;direction:ltr;font-size:50px;font-weight:800;letter-spacing:1px;color:#fff;overflow:hidden;
+    background:linear-gradient(145deg,rgba(62,230,245,.18),rgba(1,104,123,.35));border:2px solid rgba(62,230,245,.6);
+    box-shadow:0 0 50px rgba(62,230,245,.35),inset 0 1.5px 0 rgba(255,255,255,.3)}
+  #url .sh{position:absolute;top:0;bottom:0;width:140px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg)}
+  #flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgba(200,250,255,.95),rgba(62,230,245,.4) 30%,transparent 65%);opacity:0}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="glowA"></div>
+  <canvas id="bgc" width="1080" height="1920"></canvas>
+
+  <div id="scene"><div id="world">
+    <svg id="links" class="o" width="1080" height="1920" style="overflow:visible"></svg>
+
+    <!-- بطاقات طائرة -->
+    <div class="o glass" id="cStore">
+      <div class="row"><div class="tag"><span class="ic">ICON_STORE</span>متجرك</div><span class="pill" style="background:rgba(62,230,245,.15);color:var(--cyan)">● متصل</span></div>
+      <div class="cap" style="margin-top:14px">متجر ليان · جاهز للبيع</div>
+      <div style="margin-top:22px;height:74px;border-radius:20px;background:linear-gradient(120deg,#01687B,#1FC8DB);display:flex;align-items:center;justify-content:space-between;padding:0 22px">
+        <span style="font-size:26px;font-weight:900">تشكيلة الموسم</span><span class="pill" style="background:#fff;color:#01687B">خصم 30%</span></div>
+    </div>
+
+    <div class="o glass" id="cProd">
+      <div class="tag"><span class="ic">ICON_BOX</span>منتجاتك</div>
+      <div style="height:250px;margin-top:18px;border-radius:24px;background:radial-gradient(circle at 50% 60%,rgba(62,230,245,.25),rgba(255,255,255,.03) 70%);display:flex;align-items:center;justify-content:center">WATCH_BIG</div>
+      <div style="margin-top:16px;font-size:28px;font-weight:900">ساعة كلاسيك</div>
+      <div class="row" style="margin-top:6px"><span style="font-size:30px;font-weight:900;color:var(--cyan)"><bdi dir="ltr">$89</bdi></span><span class="pill" style="background:var(--cyan);color:#022">+ أضف</span></div>
+    </div>
+
+    <div class="o glass" id="cOrd">
+      <div class="row"><div class="tag"><span class="ic">ICON_BAG</span>طلباتك</div><span class="cap">اليوم</span></div>
+      <div class="ordr"><span>#1024</span><span class="pill" style="background:rgba(255,201,74,.18);color:#FFC94A">قيد التجهيز</span></div>
+      <div class="ordr"><span>#1023</span><span class="pill" style="background:rgba(62,230,245,.16);color:var(--cyan)">تم الشحن</span></div>
+      <div class="ordr"><span>#1022</span><span class="pill" style="background:rgba(80,230,150,.16);color:#5BE6A0">تم التوصيل</span></div>
+    </div>
+
+    <div class="o glass" id="cCust">
+      <div class="tag"><span class="ic">ICON_USER</span>عملاؤك</div>
+      <div class="row" style="margin-top:22px">
+        <div style="display:flex;padding-left:18px">
+          <div class="av" style="background:#1FC8DB">س</div><div class="av" style="background:#01687B">م</div><div class="av" style="background:#E08A5A">ل</div><div class="av" style="background:#7B6CF0">ع</div>
+        </div>
+        <div style="text-align:left"><div style="font-size:38px;font-weight:900;direction:ltr">+1,248</div><div class="cap" style="color:#5BE6A0">▲ 24% هالشهر</div></div>
+      </div>
+    </div>
+
+    <div class="o glass" id="cNote">
+      <div class="nt-i" style="width:70px;height:70px;border-radius:20px;background:#fff;display:flex;align-items:center;justify-content:center;flex:none"><img src="assets/bag_icon.png" style="width:56px"></div>
+      <div><div style="font-size:26px;font-weight:900">طلب جديد!</div><div class="cap">3 منتجات · <bdi dir="ltr">$120</bdi></div></div>
+    </div>
+
+    <div class="o glass" id="cCats"><span class="chip">عطور</span><span class="chip">ساعات</span><span class="chip">حقائب</span><span class="chip">نظارات</span></div>
+
+    <!-- الجوال والمتجر -->
+    <div class="o" id="phoneWrap" style="width:640px;height:1290px">
+      <div class="o" id="phone"><div class="btn1"></div><div class="btn2"></div></div>
+      <div class="o" id="store" style="left:20px;top:20px">
+        <div id="sIn">
+          <div class="sb"><span>9:41</span><span style="letter-spacing:4px">▮▮▮ ◉</span></div>
+          <div class="sec hdr" id="sHdr">
+            <div class="nm"><img src="assets/bag_icon.png">متجر ليان</div>
+            <div class="cart">ICON_CART<span class="badge" id="badge">2</span></div>
+          </div>
+          <div class="sec search" id="sSearch">ICON_SEARCH ابحث عن منتج…</div>
+          <div class="sec hero" id="sHero"><h3>تشكيلة الموسم</h3><p>خصم 30% على كل المنتجات</p><span class="btn">تسوّق الآن</span><div class="art">BOTTLES</div></div>
+          <div class="sec cats" id="sCats"><span class="chip on">الكل</span><span class="chip">عطور</span><span class="chip">ساعات</span><span class="chip">حقائب</span></div>
+          <div class="sec h2" id="sH2">منتجاتك المميزة<span>عرض الكل</span></div>
+          <div class="sec grid" id="sGrid">
+            <div class="pc"><div class="img">WATCH</div><div class="n">ساعة كلاسيك</div><div class="p"><bdi dir="ltr">$89</bdi></div><div class="add" id="addBtn">+</div></div>
+            <div class="pc"><div class="img">BOTTLE1</div><div class="n">عطر عود</div><div class="p"><bdi dir="ltr">$45</bdi></div><div class="add">+</div></div>
+            <div class="pc"><div class="img">HANDBAG</div><div class="n">حقيبة جلد</div><div class="p"><bdi dir="ltr">$120</bdi></div><div class="add">+</div></div>
+            <div class="pc"><div class="img">GLASSES</div><div class="n">نظارة شمسية</div><div class="p"><bdi dir="ltr">$59</bdi></div><div class="add">+</div></div>
+          </div>
+          <div class="sec rev" id="sRev">
+            <div><div style="font-size:26px;font-weight:900">آراء عملائك</div><div class="st">★★★★★ <span style="color:#fff;font-weight:800">4.9</span></div></div>
+            <div style="display:flex;padding-left:18px"><div class="av" style="background:#1FC8DB;width:54px;height:54px">س</div><div class="av" style="background:#E08A5A;width:54px;height:54px">ل</div><div class="av" style="background:#7B6CF0;width:54px;height:54px">ع</div></div>
+          </div>
+        </div>
+        <div class="nav" id="sNav">ICON_HOME ICON_GRID ICON_CART2 ICON_USER2</div>
+        <div id="sweep" style="position:absolute;top:0;bottom:0;width:260px;background:linear-gradient(90deg,transparent,rgba(160,245,255,.22),transparent);transform:skewX(-18deg)"></div>
+        <div id="tapR" style="position:absolute;width:120px;height:120px;border-radius:50%;border:4px solid var(--cyan);opacity:0"></div>
+        <div id="flyDot" style="position:absolute;width:30px;height:30px;border-radius:50%;background:var(--cyan);box-shadow:0 0 24px var(--cyan);opacity:0"></div>
+      </div>
+      <div class="o" id="refl"></div>
+      <div class="o" style="left:245px;top:50px;width:150px;height:40px;border-radius:22px;background:#000" id="isl"></div>
+    </div>
+
+    <!-- إشعارات حول الجوال -->
+    <div class="o glass nt" id="n0"><div class="bi"><img src="assets/bag_icon.png"></div><div><div class="t1">طلب جديد #1025</div><div class="t2">3 منتجات · <bdi dir="ltr">$120</bdi></div></div><span class="tm">الآن</span></div>
+    <div class="o glass nt" id="n1"><div class="bi"><img src="assets/bag_icon.png"></div><div><div class="t1">تم الدفع بنجاح ✓</div><div class="t2">استلمت <bdi dir="ltr">$245</bdi></div></div><span class="tm">الآن</span></div>
+    <div class="o glass nt" id="n2"><div class="bi"><img src="assets/bag_icon.png"></div><div><div class="t1">عميل جديد</div><div class="t2">انضم لمتجرك للتو</div></div><span class="tm">الآن</span></div>
+    <div class="o glass nt" id="n3"><div class="bi"><img src="assets/bag_icon.png"></div><div><div class="t1">طلب جديد #1026</div><div class="t2">منتجين · <bdi dir="ltr">$85</bdi></div></div><span class="tm">الآن</span></div>
+  </div></div>
+
+  <canvas id="fx" width="1080" height="1920"></canvas>
+
+  <div id="end">
+    <div id="logoGlow" style="background:radial-gradient(closest-side,rgba(62,230,245,.55),transparent)"></div>
+    <div id="logo"><img src="assets/logo_dark.png"></div>
+    <div id="l1"><span>خلي</span><span>فكرتك</span><span>تصير</span><span>بزنس</span></div>
+    <div id="l2">سوقلي… خيارك الأفضل لمتجرك الإلكتروني</div>
+    <div id="url">souqly.org<div class="sh" id="urlSh"></div></div>
+  </div>
+  <div id="flash"></div>
+  <div id="vign"></div>
+</div>
+
+<script>
+// ===== أيقونات =====
+const I=(d,c='#fff',w=2.4)=>`<svg viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+const ICONS={
+ STORE:I('<path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/><path d="M9 20v-6h6v6"/>'),
+ BOX:I('<path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/>'),
+ BAG:I('<path d="M6 7h12l1 14H5L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/>'),
+ USER:I('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/>'),
+ CART:I('<path d="M3 4h2l2.4 11h10.2L20 7H6.2"/><circle cx="9" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/>','#dff9ff'),
+ CART2:I('<path d="M3 4h2l2.4 11h10.2L20 7H6.2"/><circle cx="9" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/>','#8FB7C0'),
+ SEARCH:I('<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/>','#8FB7C0'),
+ HOME:I('<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>','#3EE6F5'),
+ GRID:I('<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>','#8FB7C0'),
+ USER2:I('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>','#8FB7C0'),
+};
+// ===== منتجات مرسومة =====
+const bottle=(c,cap,s=1)=>`<div style="position:relative;width:${60*s}px;height:${100*s}px">
+  <div style="position:absolute;left:50%;top:0;width:${26*s}px;height:${24*s}px;margin-left:${-13*s}px;border-radius:${6*s}px;background:${cap}"></div>
+  <div style="position:absolute;left:50%;top:${22*s}px;width:${14*s}px;height:${9*s}px;margin-left:${-7*s}px;background:#9fb8bf"></div>
+  <div style="position:absolute;left:0;right:0;top:${30*s}px;bottom:0;border-radius:${16*s}px;background:linear-gradient(135deg,${c},rgba(0,0,0,.25)),${c};box-shadow:inset ${-8*s}px 0 ${14*s}px rgba(255,255,255,.18)"></div></div>`;
+const watch=s=>`<div style="position:relative;width:${90*s}px;height:${150*s}px">
+  <div style="position:absolute;left:${27*s}px;top:0;width:${36*s}px;height:${150*s}px;border-radius:${10*s}px;background:linear-gradient(90deg,#3a2a20,#6b4a36,#3a2a20)"></div>
+  <div style="position:absolute;left:0;top:${30*s}px;width:${90*s}px;height:${90*s}px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#f6fbfc,#b8c9cf);border:${7*s}px solid #d9b25a;box-shadow:0 ${8*s}px ${20*s}px rgba(0,0,0,.4)"></div>
+  <div style="position:absolute;left:${44*s}px;top:${50*s}px;width:${3*s}px;height:${28*s}px;background:#0a2830;transform-origin:bottom;transform:rotate(30deg)"></div>
+  <div style="position:absolute;left:${44*s}px;top:${60*s}px;width:${3*s}px;height:${18*s}px;background:#01687B;transform-origin:bottom;transform:rotate(-70deg)"></div></div>`;
+const handbag=s=>`<div style="position:relative;width:${120*s}px;height:${110*s}px">
+  <div style="position:absolute;left:${30*s}px;top:0;width:${60*s}px;height:${50*s}px;border:${7*s}px solid #b86a3e;border-bottom:none;border-radius:${30*s}px ${30*s}px 0 0"></div>
+  <div style="position:absolute;left:0;right:0;top:${34*s}px;bottom:0;border-radius:${14*s}px ${14*s}px ${22*s}px ${22*s}px;background:linear-gradient(135deg,#E08A5A,#a4532c)"></div>
+  <div style="position:absolute;left:${50*s}px;top:${50*s}px;width:${20*s}px;height:${12*s}px;border-radius:${3*s}px;background:#f2c46b"></div></div>`;
+const glasses=s=>`<div style="position:relative;width:${150*s}px;height:${60*s}px">
+  <div style="position:absolute;left:0;top:${6*s}px;width:${62*s}px;height:${48*s}px;border-radius:${14*s}px ${14*s}px ${26*s}px ${26*s}px;background:linear-gradient(160deg,#1a3f4a,#050f12);border:${4*s}px solid #0b0b0b"></div>
+  <div style="position:absolute;right:0;top:${6*s}px;width:${62*s}px;height:${48*s}px;border-radius:${14*s}px ${14*s}px ${26*s}px ${26*s}px;background:linear-gradient(160deg,#1a3f4a,#050f12);border:${4*s}px solid #0b0b0b"></div>
+  <div style="position:absolute;left:${58*s}px;top:${16*s}px;width:${34*s}px;height:${6*s}px;border-radius:${3*s}px;background:#0b0b0b"></div></div>`;
+const ST=document.getElementById('stage');let html=ST.innerHTML;
+for(const k of Object.keys(ICONS).sort((a,b)=>b.length-a.length)) html=html.split('ICON_'+k).join(ICONS[k]);
+html=html.replace('WATCH_BIG',watch(1.45)).replace('WATCH',watch(1.0)).replace('BOTTLE1',bottle('#01687B','#d9b25a',1.3))
+  .replace('HANDBAG',handbag(1.05)).replace('GLASSES',glasses(1.0))
+  .replace('BOTTLES',`<div style="display:flex;gap:18px;align-items:flex-end">${bottle('#EAFBFF','#d9b25a',1.25)}${bottle('#0a2830','#3EE6F5',1.6)}</div>`);
+ST.innerHTML=html;
+</script>
+<script src="anim.js"></script>
+</body>
+</html>

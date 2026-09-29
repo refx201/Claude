@@ -7,7 +7,9 @@
 #   ماك إنتل            : نفسه، والتفريغ faster-whisper بدل mlx-whisper
 #   ويندوز (Git Bash)     : winget · ffmpeg · Node · Python · faster-whisper · mediapipe (كاشف الوجه)
 #   ريموشن (محرّك الرسم) ينزل لحاله أول مرة بكل مشروع (~500 ميقا) عبر 04b_remotion.sh setup.
-INSTALL=0; [ "$1" = "--install" ] && INSTALL=1
+#   --fx : وضع المؤثرات (لقط اليد وقص الشخص) يحتاج mediapipe بكل الأجهزة — حتى الماك.
+INSTALL=0; FX=0
+for a in "$@"; do [ "$a" = "--install" ] && INSTALL=1; [ "$a" = "--fx" ] && FX=1; done
 MISS=(); OK=(); NOTE=(); SIZE=()
 have(){ command -v "$1" >/dev/null 2>&1; }
 line(){ printf '%s\n' "$1"; }
@@ -49,6 +51,9 @@ fi
 # ── كاشف الوجه وقصّ الشخص
 if [ "$OS" = mac ]; then
   have swiftc && OK+=("كاشف الوجه") || { MISS+=("xcode"); SIZE+=("أدوات Xcode (كاشف الوجه، مجانية من أبل) ~1 قيقا"); }
+  if [ $FX -eq 1 ]; then
+    pymod mediapipe && pymod cv2 && OK+=("لاقط اليد") || { MISS+=("mediapipe"); SIZE+=("لاقط اليد للمؤثرات mediapipe ~150 ميقا"); }
+  fi
 else
   pymod mediapipe && pymod cv2 && OK+=("كاشف الوجه") || { MISS+=("mediapipe"); SIZE+=("كاشف الوجه mediapipe ~150 ميقا"); }
 fi
